@@ -10,7 +10,7 @@ import { useCurrentUser, userDisplayName, userInitials } from "./useCurrentUser"
 
 export function ProfilePage() {
   const me = useCurrentUser();
-  const { t } = useT();
+  const { language, t } = useT();
   const profile = me.data?.data;
   const name = userDisplayName(profile);
 
@@ -19,7 +19,7 @@ export function ProfilePage() {
       <PageHeader
         title={t("profile.title")}
         subtitle={t("profile.subtitle")}
-        actions={<ActionButton variant="icon" onClick={() => me.refetch()} title="Refresh profile" icon={<RefreshCw size={18} />} />}
+        actions={<ActionButton variant="icon" onClick={() => me.refetch()} title={t("profile.refresh", "Refresh profile")} icon={<RefreshCw size={18} />} />}
       />
 
       {me.isLoading ? (
@@ -34,44 +34,41 @@ export function ProfilePage() {
         <div className="profile-card">
           <span className="avatar avatar-lg">{userInitials(profile)}</span>
           <div className="profile-heading">
-            <h3>{name || (me.isError ? "Session unavailable" : "Unknown user")}</h3>
+            <h3>{name || (me.isError ? t("profile.sessionUnavailable", "Session unavailable") : t("profile.unknownUser", "Unknown user"))}</h3>
             {profile?.email ? <span className="muted"><Mail size={14} /> {profile.email}</span> : null}
             <StatusPill tone={me.isSuccess ? "good" : "warn"}>
-              {me.isSuccess ? "Signed in" : "Session unavailable"}
+              {me.isSuccess ? t("profile.signedIn", "Signed in") : t("profile.sessionUnavailable", "Session unavailable")}
             </StatusPill>
           </div>
         </div>
       )}
 
       <div className="grid">
-        <DetailCard icon={<UserRound size={16} />} label="Name" loading={me.isLoading} value={name} />
-        <DetailCard icon={<Mail size={16} />} label="Email" loading={me.isLoading} value={profile?.email} />
-        <DetailCard icon={<Clock size={16} />} label="Last sign-in" loading={me.isLoading} value={stringValue(profile?.lastSignIn)} />
+        <DetailCard icon={<UserRound size={16} />} label={t("settings.name", "Name")} loading={me.isLoading} value={name} />
+        <DetailCard icon={<Mail size={16} />} label={t("settings.email", "Email")} loading={me.isLoading} value={profile?.email} />
+        <DetailCard icon={<Clock size={16} />} label={t("settings.lastSignIn", "Last sign-in")} loading={me.isLoading} value={stringValue(profile?.lastSignIn, language)} />
       </div>
 
       <div className="panel">
-        <div className="panel-title"><ShieldCheck size={16} /><span>Roles</span></div>
-        {me.isLoading ? <Skeleton className="skeleton-line" /> : <ChipList empty="No roles assigned" items={profile?.roles} />}
+        <div className="panel-title"><ShieldCheck size={16} /><span>{t("profile.roles", "Roles")}</span></div>
+        {me.isLoading ? <Skeleton className="skeleton-line" /> : <ChipList empty={t("profile.noRoles", "No roles assigned")} items={profile?.roles} />}
       </div>
     </section>
   );
 }
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
-}
-
-function stringValue(value: unknown): string | undefined {
+function stringValue(value: unknown, locale?: string): string | undefined {
   if (typeof value !== "string" || !value) return undefined;
-  return formatDate(value);
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(locale);
 }
 
 function DetailCard({ icon, label, loading, value }: { icon: ReactNode; label: string; loading?: boolean; value?: string }) {
+  const { t } = useT();
   return (
     <div className="panel">
       <div className="panel-title">{icon}<span>{label}</span></div>
-      {loading ? <Skeleton className="skeleton-line" /> : <strong className="mono">{value || "Not available"}</strong>}
+      {loading ? <Skeleton className="skeleton-line" /> : <strong className="mono">{value || t("common.notAvailable", "Not available")}</strong>}
     </div>
   );
 }

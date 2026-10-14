@@ -2,6 +2,8 @@ import { CheckCircle2, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useIssues } from "./issuesApi";
 import { useNavigate } from "../../app/router/navigation";
+import { useT } from "../../lib/i18n/LocalizationProvider";
+import { checkLabel } from "../../lib/i18n/labels";
 import { formatDateTime } from "../../shared/ui/format";
 import { EmptyState } from "../../shared/ui/EmptyState";
 import { ErrorState } from "../../shared/ui/ErrorState";
@@ -12,6 +14,7 @@ import { StatusPill } from "../../shared/ui/StatusPill";
 export function IssuesPage() {
   const issues = useIssues();
   const navigate = useNavigate();
+  const { language, t } = useT();
   const [showResolved, setShowResolved] = useState(false);
 
   const open = (issues.data ?? []).filter((issue) => issue.open !== false);
@@ -21,11 +24,11 @@ export function IssuesPage() {
   return (
     <section>
       <PageHeader
-        title="Issues"
-        subtitle="Failed checks raised by recent verifications."
+        title={t("issues.title", "Issues")}
+        subtitle={t("issues.subtitle", "Failed checks raised by recent verifications.")}
         actions={
           <button className={showResolved ? "chip active-chip" : "chip"} onClick={() => setShowResolved((value) => !value)}>
-            {showResolved ? "Show open" : `Open ${open.length}`}{showResolved ? ` \u00b7 resolved ${resolved.length}` : ""}
+            {showResolved ? t("issues.showOpen", "Show open") : t("issues.openCount", "Open {count}", { count: open.length })}{showResolved ? t("issues.resolvedCount", " \u00b7 resolved {count}", { count: resolved.length }) : ""}
           </button>
         }
       />
@@ -33,12 +36,12 @@ export function IssuesPage() {
       {issues.isLoading ? (
         <Skeleton className="skeleton-card" />
       ) : issues.isError ? (
-        <ErrorState message="Could not load issues." onRetry={() => void issues.refetch()} />
+        <ErrorState message={t("issues.couldNotLoad", "Could not load issues.")} onRetry={() => void issues.refetch()} />
       ) : !visible.length ? (
         <EmptyState
           icon={<CheckCircle2 size={28} />}
-          title={showResolved ? "No resolved issues" : "No open issues."}
-          description={showResolved ? "Resolved issues appear here after a later healthy run." : "Every failed check is resolved or none have been raised."}
+          title={showResolved ? t("issues.noResolved", "No resolved issues") : t("issues.noOpen", "No open issues.")}
+          description={showResolved ? t("issues.noResolvedHint", "Resolved issues appear here after a later healthy run.") : t("issues.noOpenHint", "Every failed check is resolved or none have been raised.")}
         />
       ) : (
         <ul className="issue-cards">
@@ -47,13 +50,13 @@ export function IssuesPage() {
               <span className="issue-card-icon"><TriangleAlert size={18} /></span>
               <div className="issue-card-body">
                 <div className="issue-card-head">
-                  <strong>{issue.deploymentName ?? "Deployment"}</strong>
-                  <StatusPill tone={issue.open === false ? "good" : "bad"}>{issue.open === false ? "Resolved" : "Open"}</StatusPill>
+                  <strong>{issue.deploymentName ?? t("issues.deployment", "Deployment")}</strong>
+                  <StatusPill tone={issue.open === false ? "good" : "bad"}>{issue.open === false ? t("issues.resolved", "Resolved") : t("issues.open", "Open")}</StatusPill>
                 </div>
-                <span className="issue-card-line">{issue.checkName}: {issue.summary}</span>
-                <span className="muted">{formatDateTime(issue.raisedAt)}</span>
+                <span className="issue-card-line">{checkLabel(t, issue.checkName)}: {issue.summary}</span>
+                <span className="muted">{formatDateTime(issue.raisedAt, language)}</span>
               </div>
-              <button className="icon-button" onClick={() => navigate(`/verifications/${encodeURIComponent(issue.verificationId ?? "")}`)}>View report</button>
+              <button className="icon-button" onClick={() => navigate(`/verifications/${encodeURIComponent(issue.verificationId ?? "")}`)}>{t("issues.viewReport", "View report")}</button>
             </li>
           ))}
         </ul>

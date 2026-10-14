@@ -1,4 +1,5 @@
 import type { Verification } from "../verifications/verificationsApi";
+import { useT } from "../../lib/i18n/LocalizationProvider";
 
 export function successRate(verifications: Verification[]): number {
   if (!verifications.length) return 0;
@@ -6,7 +7,7 @@ export function successRate(verifications: Verification[]): number {
   return Math.round((healthy / verifications.length) * 100);
 }
 
-export function dailyBuckets(verifications: Verification[], days = 7): { label: string; healthy: number; failed: number; total: number }[] {
+export function dailyBuckets(verifications: Verification[], days = 7, locale?: string): { label: string; healthy: number; failed: number; total: number }[] {
   const buckets: { date: Date; label: string; healthy: number; failed: number; total: number }[] = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -14,7 +15,7 @@ export function dailyBuckets(verifications: Verification[], days = 7): { label: 
   for (let offset = days - 1; offset >= 0; offset -= 1) {
     const date = new Date(today);
     date.setDate(today.getDate() - offset);
-    buckets.push({ date, healthy: 0, failed: 0, label: date.toLocaleDateString(undefined, { weekday: "short" }), total: 0 });
+    buckets.push({ date, healthy: 0, failed: 0, label: date.toLocaleDateString(locale, { weekday: "short" }), total: 0 });
   }
 
   for (const verification of verifications) {
@@ -33,7 +34,8 @@ export function dailyBuckets(verifications: Verification[], days = 7): { label: 
 }
 
 export function SuccessChart({ verifications, compact = false }: { verifications: Verification[]; compact?: boolean }) {
-  const buckets = dailyBuckets(verifications);
+  const { language, t } = useT();
+  const buckets = dailyBuckets(verifications, 7, language);
   const max = Math.max(1, ...buckets.map((bucket) => bucket.total));
   const rate = successRate(verifications);
 
@@ -41,9 +43,9 @@ export function SuccessChart({ verifications, compact = false }: { verifications
     <div className={compact ? "success-chart compact" : "success-chart"}>
       <div className="success-chart-rate">
         <strong>{verifications.length ? `${rate}%` : "\u2014"}</strong>
-        {compact ? null : <span className="muted">Success rate, last 7 days</span>}
+        {compact ? null : <span className="muted">{t("analytics.successRate7", "Success rate, last 7 days")}</span>}
       </div>
-      <div className="success-bars" role="img" aria-label={`Daily verifications over the last 7 days; success rate ${rate} percent`}>
+      <div className="success-bars" role="img" aria-label={t("analytics.chartAria", "Daily verifications over the last 7 days; success rate {rate} percent", { rate })}>
         {buckets.map((bucket, index) => (
           <div className="success-bar-column" key={index}>
             <div className="success-bar-track">

@@ -14,6 +14,8 @@ import { ENVIRONMENT_ORDER } from "./environments";
 import type { Environment } from "./environments";
 import { useNavigate } from "../../app/router/navigation";
 import { useQueryParam } from "../../app/router/useSearchParams";
+import { useT } from "../../lib/i18n/LocalizationProvider";
+import { environmentLabel } from "../../lib/i18n/labels";
 import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
 import { EmptyState } from "../../shared/ui/EmptyState";
 import { ErrorState } from "../../shared/ui/ErrorState";
@@ -27,6 +29,7 @@ export function DeploymentsPage() {
   const profile = useCurrentUser();
   const isAdmin = useIsAdmin();
   const { notify } = useToast();
+  const { t } = useT();
   const navigate = useNavigate();
   const environmentParam = useQueryParam("environment");
   const searchTerm = (useQueryParam("q") ?? "").trim().toLowerCase();
@@ -70,11 +73,11 @@ export function DeploymentsPage() {
       mutations.update.mutate(
         { deployment: editing, input: values },
         {
-          onError: () => setFormError("Could not save the deployment. Please try again."),
+          onError: () => setFormError(t("deployments.saveFailed", "Could not save the deployment. Please try again.")),
           onSuccess: () => {
             setFormOpen(false);
             setEditing(undefined);
-            notify("Deployment saved.", "success");
+            notify(t("deployments.saved", "Deployment saved."), "success");
             void recordChange({ action: "Updated", after: describeValues(values), before, changedBy: actor, entity: "Deployment", record: values.name });
           }
         }
@@ -84,10 +87,10 @@ export function DeploymentsPage() {
     mutations.create.mutate(
       { ...values, addedBy: actor },
       {
-        onError: () => setFormError("Could not save the deployment. Please try again."),
+        onError: () => setFormError(t("deployments.saveFailed", "Could not save the deployment. Please try again.")),
         onSuccess: () => {
           setFormOpen(false);
-          notify("Deployment saved.", "success");
+          notify(t("deployments.saved", "Deployment saved."), "success");
           void recordChange({ action: "Added", after: describeValues(values), changedBy: actor, entity: "Deployment", record: values.name });
         }
       }
@@ -98,10 +101,10 @@ export function DeploymentsPage() {
     if (!removing) return;
     const target = removing;
     mutations.remove.mutate(target, {
-      onError: () => notify("Could not remove the deployment.", "error"),
+      onError: () => notify(t("deployments.removeFailed", "Could not remove the deployment."), "error"),
       onSuccess: () => {
         setRemoving(undefined);
-        notify("Deployment removed.", "success");
+        notify(t("deployments.removed", "Deployment removed."), "success");
         void recordChange({ action: "Removed", before: describeDeployment(target), changedBy: actor, entity: "Deployment", record: target.name ?? "Deployment" });
       }
     });
@@ -111,7 +114,7 @@ export function DeploymentsPage() {
     const id = deployment.ItemId;
     if (!id) return;
     if (runningVerification(id)) {
-      notify(`A verification is already running for ${deployment.environment}.`, "info");
+      notify(t("deployments.alreadyRunning", "A verification is already running for {environment}.", { environment: environmentLabel(t, deployment.environment) }), "info");
       return;
     }
     navigate(`/deployments/${encodeURIComponent(id)}/verify`);
@@ -120,28 +123,28 @@ export function DeploymentsPage() {
   const actions = hasAny ? (
     <button className="primary-button" onClick={openCreate}>
       <Plus size={16} />
-      Add Deployment
+      {t("deployments.addDeployment", "Add Deployment")}
     </button>
   ) : null;
 
   return (
     <section>
       <PageHeader
-        title="Deployments"
-        subtitle="Every web application address DeployGuard verifies, grouped by environment."
+        title={t("deployments.title", "Deployments")}
+        subtitle={t("deployments.subtitle", "Every web application address DeployGuard verifies, grouped by environment.")}
         actions={actions}
       />
 
       {enriched.isLoading ? (
         <DeploymentsSkeleton />
       ) : enriched.isError ? (
-        <ErrorState message="Could not load deployments." onRetry={enriched.refetch} />
+        <ErrorState message={t("deployments.couldNotLoad", "Could not load deployments.")} onRetry={enriched.refetch} />
       ) : !hasAny ? (
         <EmptyState
           icon={<Rocket size={28} />}
-          title="No deployments yet"
-          description="Add your first deployment and run your first automated verification."
-          action={<button className="primary-button" onClick={openCreate}><Plus size={16} />Add Deployment</button>}
+          title={t("deployments.noDeployments", "No deployments yet")}
+          description={t("overview.addFirst", "Add your first deployment and run your first automated verification.")}
+          action={<button className="primary-button" onClick={openCreate}><Plus size={16} />{t("deployments.addDeployment", "Add Deployment")}</button>}
         />
       ) : (
         <div className="environment-groups">
@@ -150,7 +153,7 @@ export function DeploymentsPage() {
             return (
               <div className="environment-group" key={env}>
                 <div className="environment-heading">
-                  <h3>{env}</h3>
+                  <h3>{environmentLabel(t, env)}</h3>
                   <span className="muted">{items.length}</span>
                 </div>
                 {items.length ? (
@@ -169,7 +172,7 @@ export function DeploymentsPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="environment-empty muted">No deployments in {env}.</p>
+                  <p className="environment-empty muted">{t("overview.noDeploymentsIn", "No deployments in {environment}.", { environment: environmentLabel(t, env) })}</p>
                 )}
               </div>
             );
@@ -189,9 +192,9 @@ export function DeploymentsPage() {
 
       {removing ? (
         <ConfirmDialog
-          title="Remove deployment"
-          confirmLabel="Remove"
-          message={`Remove "${removing.name}"? Its past verifications stay readable under Verifications.`}
+          title={t("deployments.removeTitle", "Remove deployment")}
+          confirmLabel={t("deployments.removeLabel", "Remove")}
+          message={t("deployments.removeMessage", "Remove \"{name}\"? Its past verifications stay readable under Verifications.", { name: removing.name ?? "" })}
           onCancel={() => setRemoving(undefined)}
           onConfirm={confirmRemove}
         />
@@ -200,7 +203,7 @@ export function DeploymentsPage() {
       {!isAdmin && removing ? (
         <div className="not-allowed" role="alert">
           <TriangleAlert size={16} />
-          Only admins can remove a deployment.
+          {t("deployments.onlyAdminsRemove", "Only admins can remove a deployment.")}
         </div>
       ) : null}
     </section>

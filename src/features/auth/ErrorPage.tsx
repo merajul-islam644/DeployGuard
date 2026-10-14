@@ -7,7 +7,7 @@ export function ErrorPage({ onNavigate }: { onNavigate?: (path: string) => void 
     <section className="empty-page">
       <AlertTriangle size={42} />
       <h2>{t("common.error")}</h2>
-      <p>The page could not finish loading. Try again or return home.</p>
+      <p>{t("common.errorDetail", "The page could not finish loading. Try again or return home.")}</p>
       <button className="primary-button" onClick={() => onNavigate?.("/")}>
         <Home size={16} /> {t("notFound.home")}
       </button>

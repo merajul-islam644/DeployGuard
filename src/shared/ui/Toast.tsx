@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
+import { useT } from "../../lib/i18n/LocalizationProvider";
 
 type ToastTone = "success" | "error" | "info";
 type Toast = { id: number; message: string; tone: ToastTone };
@@ -10,6 +11,7 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 let nextId = 1;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const { t } = useT();
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const dismiss = useCallback((id: number) => {
@@ -34,7 +36,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               {toast.tone === "success" ? <CheckCircle2 size={16} /> : toast.tone === "error" ? <AlertTriangle size={16} /> : <Info size={16} />}
             </span>
             <span>{toast.message}</span>
-            <button className="toast-close" onClick={() => dismiss(toast.id)} aria-label="Dismiss">
+            <button className="toast-close" onClick={() => dismiss(toast.id)} aria-label={t("common.dismiss", "Dismiss")}>
               <X size={14} />
             </button>
           </div>

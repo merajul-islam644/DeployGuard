@@ -6,23 +6,34 @@ import { defaultDictionary } from "./dictionary";
 
 type Dictionary = Record<string, string>;
 export type LocalizationLanguage = { code: string; isDefault: boolean; name: string };
+type TranslateVars = Record<string, string | number>;
 type LocalizationValue = {
   language: string;
   languages: LocalizationLanguage[];
   setLanguage: (language: string) => void;
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, fallback?: string, vars?: TranslateVars) => string;
 };
 
 const LocalizationContext = createContext<LocalizationValue | undefined>(undefined);
-const LANGUAGE_KEY = "blocks-app:language";
+const LANGUAGE_KEY = "deployguard:language";
 // One module per screen would keep the initial payload small, but DeployGuard
-// only ships shared "common" strings for now -- add module names as pages grow.
+// ships every string through the shared "common" module.
 const MODULES = ["common"];
+// DeployGuard ships exactly two languages; the tenant may have others
+// configured, but the app offers only these.
+const SUPPORTED_LANGUAGES = ["en-US", "bn-BD"];
+// Each language is named in its own script, the way a switcher should read.
+const LANGUAGE_LABELS: Record<string, string> = { "en-US": "English", "bn-BD": "\u09ac\u09be\u0982\u09b2\u09be" };
 
 function normalizeLanguage(raw: Record<string, unknown>): LocalizationLanguage {
   const code = raw.languageCode ?? raw.code ?? raw.culture ?? "en";
   const name = raw.languageName ?? raw.displayName ?? raw.name ?? String(code);
   return { code: String(code), isDefault: Boolean(raw.isDefault), name: String(name) };
+}
+
+export function interpolate(template: string, vars?: TranslateVars): string {
+  if (!vars) return template;
+  return template.replace(/\{(\w+)\}/g, (match, name) => (name in vars ? String(vars[name]) : match));
 }
 
 export function LocalizationProvider({ children }: { children: ReactNode }) {
@@ -34,12 +45,19 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
     staleTime: 5 * 60_000
   });
 
-  const languages = useMemo(() => (languagesQuery.data ?? []).map(normalizeLanguage), [languagesQuery.data]);
-  // Until /Language/Gets resolves (or on a tenant with none configured), fall
-  // back to "en" -- it must still match a real languageCode for translations
-  // to resolve, so this is a startup default rather than a guaranteed hit.
-  const defaultLanguage = languages.find((entry) => entry.isDefault)?.code ?? languages[0]?.code ?? "en";
-  const language = languageOverride || defaultLanguage;
+  // Offer only the two languages DeployGuard supports, in a fixed order, even
+  // if the tenant has others configured.
+  const languages = useMemo(
+    () =>
+      SUPPORTED_LANGUAGES.map((code) => {
+        const configured = (languagesQuery.data ?? []).map(normalizeLanguage).find((entry) => entry.code === code);
+        return { code, isDefault: code === "en-US", name: LANGUAGE_LABELS[code] ?? configured?.name ?? code };
+      }),
+    [languagesQuery.data]
+  );
+  const remembered = SUPPORTED_LANGUAGES.includes(languageOverride) ? languageOverride : "";
+  // English is the app's own default until the person chooses otherwise.
+  const language = remembered || "en-US";
 
   function setLanguage(next: string) {
     localStorage.setItem(LANGUAGE_KEY, next);
@@ -74,7 +92,8 @@ export function LocalizationProvider({ children }: { children: ReactNode }) {
     language,
     languages,
     setLanguage,
-    t: (key, fallback) => cloudDictionary[key] ?? (defaultDictionary as Record<string, string>)[key] ?? fallback ?? key
+    t: (key, fallback, vars) =>
+      interpolate(cloudDictionary[key] ?? (defaultDictionary as Record<string, string>)[key] ?? fallback ?? key, vars)
   }), [cloudDictionary, language, languages]);
 
   return <LocalizationContext.Provider value={value}>{children}</LocalizationContext.Provider>;

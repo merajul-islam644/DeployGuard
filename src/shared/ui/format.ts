@@ -3,16 +3,16 @@ export function formatDuration(seconds?: number): string {
   return `${Number(seconds).toFixed(1)}s`;
 }
 
-export function formatDateTime(value?: string): string {
+export function formatDateTime(value?: string, locale?: string): string {
   if (!value) return "\u2014";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
 }
 
-export function formatDate(value?: string): string {
+export function formatDate(value?: string, locale?: string): string {
   if (!value) return "\u2014";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, { dateStyle: "medium" });
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(locale, { dateStyle: "medium" });
 }
 
 export function timeAgo(value?: string): string {

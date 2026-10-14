@@ -6,6 +6,8 @@ import { AIAnalysisCard } from "./AIAnalysisCard";
 import { EvidenceViewer } from "./EvidenceViewer";
 import { useNavigate } from "../../app/router/navigation";
 import { useQueryParam } from "../../app/router/useSearchParams";
+import { useT } from "../../lib/i18n/LocalizationProvider";
+import { checkLabel, environmentLabel, evidenceLabel, statusLabel } from "../../lib/i18n/labels";
 import { formatDateTime, formatDuration, healthTone, outcomeTone } from "../../shared/ui/format";
 import { Alert } from "../../shared/ui/Alert";
 import { PageHeader } from "../../shared/ui/PageHeader";
@@ -27,6 +29,7 @@ export function VerificationReportPage({ verificationId }: { verificationId: str
   const checks = useCheckResults(verificationId);
   const evidence = useEvidence(verificationId);
   const navigate = useNavigate();
+  const { language, t } = useT();
   const requestedEvidence = useQueryParam("evidence");
   const [openEvidence, setOpenEvidence] = useState<EvidenceRecord | undefined>();
 
@@ -48,9 +51,9 @@ export function VerificationReportPage({ verificationId }: { verificationId: str
   if (verification.isError || !verification.data) {
     return (
       <section>
-        <PageHeader title="Verification" subtitle="This verification no longer exists." />
-        <Alert tone="error">This verification no longer exists.</Alert>
-        <button className="primary-button" onClick={() => navigate("/verifications")}>Back to History</button>
+        <PageHeader title={t("report.title", "Verification")} subtitle={t("report.missing", "This verification no longer exists.")} />
+        <Alert tone="error">{t("report.missing", "This verification no longer exists.")}</Alert>
+        <button className="primary-button" onClick={() => navigate("/verifications")}>{t("report.backToHistory", "Back to History")}</button>
       </section>
     );
   }
@@ -63,38 +66,40 @@ export function VerificationReportPage({ verificationId }: { verificationId: str
   return (
     <section>
       <button className="back-link" onClick={() => navigate(`/deployments/${encodeURIComponent(run.deploymentId ?? "")}`)}>
-        <ChevronRight size={16} /> {run.environment}
+        <ChevronRight size={16} /> {environmentLabel(t, run.environment)}
       </button>
 
       <PageHeader
-        title={`${run.deploymentName ?? "Deployment"} verification`}
-        subtitle={`${formatDateTime(run.startedAt)} \u00b7 ${formatDuration(run.durationSeconds)} \u00b7 ${run.triggeredBy ?? "Staff"} \u00b7 ${run.triggerType ?? "Manual"}`}
-        actions={<StatusPill tone={healthTone(run.healthStatus)}>{run.healthStatus ?? "Unknown"}</StatusPill>}
+        title={t("report.verificationOf", "{name} verification", { name: run.deploymentName ?? t("issues.deployment", "Deployment") })}
+        subtitle={`${formatDateTime(run.startedAt, language)} \u00b7 ${formatDuration(run.durationSeconds)} \u00b7 ${run.triggeredBy ?? t("common.staff", "Staff")} \u00b7 ${run.triggerType ?? t("common.manual", "Manual")}`}
+        actions={<StatusPill tone={healthTone(run.healthStatus)}>{statusLabel(t, run.healthStatus)}</StatusPill>}
       />
 
       <div className="report-hero">
         <ScoreRing score={run.score ?? 0} />
         <div className="report-hero-copy">
           <span className="report-status" style={{ color: "inherit" }}>
-            <StatusPill tone={healthTone(run.healthStatus)}>{run.healthStatus ?? "Unknown"}</StatusPill>
+            <StatusPill tone={healthTone(run.healthStatus)}>{statusLabel(t, run.healthStatus)}</StatusPill>
           </span>
-          <h3>{healthy ? "Your deployment is working as expected!" : run.reason ?? "This deployment needs attention."}</h3>
+          <h3>{healthy ? t("report.heroHealthy", "Your deployment is working as expected!") : run.reason ?? t("report.heroProblemTitle", "This deployment needs attention.")}</h3>
           <p className="muted">
             {healthy
               ? run.warnings?.length
-                ? `All critical user-facing checks passed successfully. ${run.warnings.length} non-blocking warning${run.warnings.length === 1 ? "" : "s"} were found.`
-                : "All seven checks passed successfully."
-              : run.reason ?? "A critical check failed."}
+                ? run.warnings.length === 1
+                  ? t("report.warningFound", "All critical user-facing checks passed successfully. {count} non-blocking warning was found.", { count: run.warnings.length })
+                  : t("report.warningsFound", "All critical user-facing checks passed successfully. {count} non-blocking warnings were found.", { count: run.warnings.length })
+                : t("report.allPassed", "All seven checks passed successfully.")
+              : run.reason ?? t("report.heroProblem", "A critical check failed.")}
           </p>
         </div>
       </div>
 
       <div className="panel">
-        <div className="panel-title">Verification Steps</div>
+        <div className="panel-title">{t("report.steps", "Verification Steps")}</div>
         <div className="table-shell">
           <table>
             <thead>
-              <tr><th>Check</th><th>Result</th><th>Outcome</th><th>Duration</th><th /></tr>
+              <tr><th>{t("report.check", "Check")}</th><th>{t("report.result", "Result")}</th><th>{t("report.outcome", "Outcome")}</th><th>{t("report.duration", "Duration")}</th><th /></tr>
             </thead>
             <tbody>
               {checkList.map((result) => (
@@ -107,16 +112,20 @@ export function VerificationReportPage({ verificationId }: { verificationId: str
       </div>
 
       <div className="panel">
-        <div className="panel-title">Evidence</div>
+        <div className="panel-title">{t("report.evidence", "Evidence")}</div>
         <div className="evidence-grid">
           {evidenceList.map((entry) => {
             const Icon = EVIDENCE_ICONS[(entry.kind as keyof typeof EVIDENCE_ICONS) ?? "DOM"] ?? ScrollText;
             return (
               <button className="evidence-card" key={entry.ItemId ?? entry.kind} onClick={() => setOpenEvidence(entry)}>
                 <span className="evidence-card-icon"><Icon size={18} /></span>
-                <span className="evidence-card-title">{entry.kind}</span>
+                <span className="evidence-card-title">{evidenceLabel(t, entry.kind)}</span>
                 <span className="evidence-card-preview muted">
-                  {entry.notCaptured ? (entry.kind === "Trace" ? "Trace not captured for this run." : "Not captured for this run.") : entry.capture}
+                  {entry.notCaptured
+                    ? entry.kind === "Trace"
+                      ? t("report.traceMissing", "Trace not captured for this run.")
+                      : t("report.notCapturedRun", "{kind} was not captured for this run.", { kind: evidenceLabel(t, entry.kind) })
+                    : entry.capture}
                 </span>
               </button>
             );
@@ -133,11 +142,12 @@ export function VerificationReportPage({ verificationId }: { verificationId: str
 }
 
 function CheckRow({ result, onOpen }: { result: CheckResultRecord; onOpen: () => void }) {
+  const { t } = useT();
   return (
     <tr className="clickable" onClick={onOpen}>
-      <td><strong>{result.checkName}</strong><div className="muted check-detail-hint">{result.detail?.[0]}</div></td>
+      <td><strong>{checkLabel(t, result.checkName)}</strong><div className="muted check-detail-hint">{result.detail?.[0]}</div></td>
       <td className="mono">{result.result}</td>
-      <td><StatusPill tone={outcomeTone(result.outcome)}>{result.outcome ?? "Unknown"}</StatusPill></td>
+      <td><StatusPill tone={outcomeTone(result.outcome)}>{statusLabel(t, result.outcome)}</StatusPill></td>
       <td className="mono">{formatDuration(result.durationSeconds)}</td>
       <td><ChevronRight size={16} /></td>
     </tr>

@@ -2,6 +2,7 @@ import { LayoutGrid, PanelLeft, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { brandIcon, environmentNavItems, navItems } from "./navItems";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
@@ -60,7 +61,7 @@ export function AppShell({
           <button
             className="icon-button sidebar-collapse-toggle"
             onClick={() => setCollapsedPref((value) => !value)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? t("nav.expandSidebar", "Expand sidebar") : t("nav.collapseSidebar", "Collapse sidebar")}
           >
             <PanelLeft size={16} />
           </button>
@@ -86,14 +87,14 @@ export function AppShell({
                   className={currentEnvironment === entry.environment ? "nav-subitem active" : "nav-subitem"}
                   onClick={() => go(entry.href)}
                 >
-                  {entry.environment}
+                  {t(`env.${entry.environment.toLowerCase()}`, entry.environment)}
                 </button>
               ))}
             </div>
           ) : null}
         </nav>
         {collapsed ? null : (
-          <p className="sidebar-tagline">Automated deployment verification for modern web apps.</p>
+          <p className="sidebar-tagline">{t("app.tagline", "Automated deployment verification for modern web apps.")}</p>
         )}
       </aside>
       <div className="content">
@@ -102,8 +103,8 @@ export function AppShell({
             <Search size={16} />
             <input
               type="search"
-              placeholder="Search deployments..."
-              aria-label="Search deployments"
+              placeholder={t("nav.searchPlaceholder", "Search deployments...")}
+              aria-label={t("nav.searchLabel", "Search deployments")}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   const value = (event.target as HTMLInputElement).value.trim();
@@ -114,6 +115,7 @@ export function AppShell({
           </label>
           <div className="topbar-spacer" />
           <NotificationsMenu openIssues={openIssues} onNavigate={onNavigate} />
+          <LanguageSwitcher />
           <ThemeToggle />
           <UserMenu onNavigate={onNavigate} />
         </header>

@@ -1,5 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useT } from "../../lib/i18n/LocalizationProvider";
 
 const THEME_KEY = "deployguard:theme";
 type Theme = "dark" | "light";
@@ -24,8 +25,14 @@ export function useTheme() {
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const { t } = useT();
   return (
-    <button className="icon-button" onClick={toggle} aria-label={theme === "dark" ? "Switch to light appearance" : "Switch to dark appearance"} title="Appearance">
+    <button
+      className="icon-button"
+      onClick={toggle}
+      aria-label={theme === "dark" ? t("nav.switchToLight", "Switch to light appearance") : t("nav.switchToDark", "Switch to dark appearance")}
+      title={t("nav.appearance", "Appearance")}
+    >
       {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );

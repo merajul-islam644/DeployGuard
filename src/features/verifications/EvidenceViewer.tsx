@@ -1,20 +1,24 @@
 import { Fragment, useMemo, useState } from "react";
 import type { EvidenceRecord } from "./verificationsApi";
 import { maskRow, maskSecrets } from "./mask";
+import { useT } from "../../lib/i18n/LocalizationProvider";
+import { evidenceLabel } from "../../lib/i18n/labels";
 import { formatDateTime } from "../../shared/ui/format";
 import { Modal } from "../../shared/ui/Modal";
 
 export function EvidenceViewer({ evidence, onClose }: { evidence: EvidenceRecord; onClose: () => void }) {
+  const { language, t } = useT();
   const kind = evidence.kind ?? "Evidence";
+  const kindName = evidenceLabel(t, kind);
 
   return (
-    <Modal title={`${kind} evidence`} onClose={onClose}>
+    <Modal title={t("evidence.kind", "{kind} evidence", { kind: kindName })} onClose={onClose}>
       <div className="evidence-meta">
         <span className="mono">{evidence.url}</span>
-        <span className="muted">{formatDateTime(evidence.capturedAt)} \u00b7 {evidence.viewport} \u00b7 {evidence.browser}</span>
+        <span className="muted">{formatDateTime(evidence.capturedAt, language)} \u00b7 {evidence.viewport} \u00b7 {evidence.browser}</span>
       </div>
       {evidence.notCaptured ? (
-        <p className="evidence-missing">{kind === "Trace" ? "Trace not captured for this run." : `${kind} was not captured for this run.`}</p>
+        <p className="evidence-missing">{kind === "Trace" ? t("report.traceMissing", "Trace not captured for this run.") : t("report.notCapturedRun", "{kind} was not captured for this run.", { kind: kindName })}</p>
       ) : kind === "Network" ? (
         <NetworkViewer rows={evidence.rows ?? []} />
       ) : kind === "Console" ? (
@@ -32,9 +36,12 @@ export function EvidenceViewer({ evidence, onClose }: { evidence: EvidenceRecord
   );
 }
 
+const FILTERS = ["All", "Critical", "Warning", "Info"] as const;
+
 type NetworkRow = { durationMs?: number; method?: string; status?: number; url?: string };
 
 function NetworkViewer({ rows }: { rows: string[] }) {
+  const { t } = useT();
   const [search, setSearch] = useState("");
   const [failedOnly, setFailedOnly] = useState(false);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -49,17 +56,17 @@ function NetworkViewer({ rows }: { rows: string[] }) {
   return (
     <div className="evidence-viewer">
       <div className="viewer-toolbar">
-        <input className="search-box-input" placeholder="Search requests..." value={search} onChange={(event) => setSearch(event.target.value)} />
+        <input className="search-box-input" placeholder={t("evidence.searchRequests", "Search requests...")} value={search} onChange={(event) => setSearch(event.target.value)} />
         <label className="check-option">
           <input type="checkbox" checked={failedOnly} onChange={() => setFailedOnly((value) => !value)} />
-          <span>Failed only</span>
+          <span>{t("evidence.failedOnly", "Failed only")}</span>
         </label>
-        <span className="muted">{visible.length} of {parsed.length}</span>
+        <span className="muted">{t("evidence.showingCount", "{shown} of {total}", { shown: visible.length, total: parsed.length })}</span>
       </div>
       <div className="table-shell">
         <table>
           <thead>
-            <tr><th>Method</th><th>URL</th><th>Status</th><th>Duration</th></tr>
+            <tr><th>{t("evidence.method", "Method")}</th><th>{t("evidence.url", "URL")}</th><th>{t("evidence.status", "Status")}</th><th>{t("evidence.duration", "Duration")}</th></tr>
           </thead>
           <tbody>
             {visible.map((row, index) => (
@@ -68,16 +75,16 @@ function NetworkViewer({ rows }: { rows: string[] }) {
                   <td className="mono">{row.method ?? "GET"}</td>
                   <td className="mono url-cell">{maskSecrets(row.url ?? "")}</td>
                   <td className={statusClass(row.status)}>{row.status ?? "\u2014"}</td>
-                  <td className="mono">{row.durationMs ?? 0} ms</td>
+                  <td className="mono">{t("evidence.durationMs", "{value} ms", { value: row.durationMs ?? 0 })}</td>
                 </tr>
                 {openIndex === index ? (
                   <tr>
                     <td colSpan={4}>
                       <dl className="details-list">
-                        <div className="details-row"><dt>Method</dt><dd className="mono">{row.method ?? "GET"}</dd></div>
-                        <div className="details-row"><dt>URL</dt><dd className="mono">{maskSecrets(row.url ?? "")}</dd></div>
-                        <div className="details-row"><dt>Status code</dt><dd className="mono">{row.status ?? "\u2014"}</dd></div>
-                        <div className="details-row"><dt>Duration</dt><dd className="mono">{row.durationMs ?? 0} ms</dd></div>
+                        <div className="details-row"><dt>{t("evidence.method", "Method")}</dt><dd className="mono">{row.method ?? "GET"}</dd></div>
+                        <div className="details-row"><dt>{t("evidence.url", "URL")}</dt><dd className="mono">{maskSecrets(row.url ?? "")}</dd></div>
+                        <div className="details-row"><dt>{t("evidence.statusCode", "Status code")}</dt><dd className="mono">{row.status ?? "\u2014"}</dd></div>
+                        <div className="details-row"><dt>{t("evidence.duration", "Duration")}</dt><dd className="mono">{t("evidence.durationMs", "{value} ms", { value: row.durationMs ?? 0 })}</dd></div>
                       </dl>
                     </td>
                   </tr>
@@ -86,7 +93,7 @@ function NetworkViewer({ rows }: { rows: string[] }) {
             ))}
           </tbody>
         </table>
-        {!visible.length ? <p className="muted viewer-empty">No requests match.</p> : null}
+        {!visible.length ? <p className="muted viewer-empty">{t("evidence.noRequests", "No requests match.")}</p> : null}
       </div>
     </div>
   );
@@ -95,19 +102,26 @@ function NetworkViewer({ rows }: { rows: string[] }) {
 type ConsoleRow = { at?: string; level?: string; message?: string };
 
 function ConsoleViewer({ rows }: { rows: string[] }) {
+  const { t } = useT();
   const [filter, setFilter] = useState<"All" | "Critical" | "Warning" | "Info">("All");
   const parsed = rows.map(parseRow<ConsoleRow>);
   const visible = parsed.filter((row) => filter === "All" || row.level === filter);
+  const filterKeys: Record<(typeof FILTERS)[number], string> = {
+    All: "evidence.all",
+    Critical: "evidence.critical",
+    Warning: "evidence.warning",
+    Info: "evidence.info"
+  };
 
   if (!parsed.length) {
-    return <p className="evidence-missing">Console output is private to the deployment's own origin and was not captured.</p>;
+    return <p className="evidence-missing">{t("evidence.consolePrivate", "Console output is private to the deployment's own origin and was not captured.")}</p>;
   }
 
   return (
     <div className="evidence-viewer">
       <div className="viewer-toolbar">
-        {(["All", "Critical", "Warning", "Info"] as const).map((level) => (
-          <button key={level} className={filter === level ? "chip active-chip" : "chip"} onClick={() => setFilter(level)}>{level}</button>
+        {FILTERS.map((level) => (
+          <button key={level} className={filter === level ? "chip active-chip" : "chip"} onClick={() => setFilter(level)}>{t(filterKeys[level], level)}</button>
         ))}
       </div>
       <pre className="console-log">
@@ -124,19 +138,20 @@ function ConsoleViewer({ rows }: { rows: string[] }) {
 }
 
 function ScreenshotViewer({ evidence }: { evidence: EvidenceRecord }) {
+  const { language, t } = useT();
   return (
     <div className="screenshot-view">
       <div className="screenshot-frame">
         <div className="screenshot-placeholder">
           <span className="mono">{maskSecrets(evidence.url ?? "")}</span>
-          <span>Working capture</span>
+          <span>{t("evidence.workingCapture", "Working capture")}</span>
         </div>
       </div>
       <dl className="details-list">
-        <div className="details-row"><dt>Captured</dt><dd>{formatDateTime(evidence.capturedAt)}</dd></div>
-        <div className="details-row"><dt>URL</dt><dd className="mono">{maskSecrets(evidence.url ?? "")}</dd></div>
-        <div className="details-row"><dt>Viewport</dt><dd className="mono">{evidence.viewport}</dd></div>
-        <div className="details-row"><dt>Browser</dt><dd>{evidence.browser}</dd></div>
+        <div className="details-row"><dt>{t("evidence.captured", "Captured")}</dt><dd>{formatDateTime(evidence.capturedAt, language)}</dd></div>
+        <div className="details-row"><dt>{t("evidence.url", "URL")}</dt><dd className="mono">{maskSecrets(evidence.url ?? "")}</dd></div>
+        <div className="details-row"><dt>{t("evidence.viewport", "Viewport")}</dt><dd className="mono">{evidence.viewport}</dd></div>
+        <div className="details-row"><dt>{t("evidence.browser", "Browser")}</dt><dd>{evidence.browser}</dd></div>
       </dl>
     </div>
   );

@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
+import { useT } from "../../lib/i18n/LocalizationProvider";
 
 // A generic overlay used by every create/edit/delete dialog in the app --
 // backdrop click and Escape both close it, matching what a native <dialog>
 // gives you for free.
 export function Modal({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {
+  const { t } = useT();
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -19,7 +21,7 @@ export function Modal({ children, onClose, title }: { children: ReactNode; onClo
       <div aria-modal="true" className="modal" role="dialog" onClick={(event) => event.stopPropagation()}>
         <div className="modal-header">
           <h3>{title}</h3>
-          <button className="icon-button" onClick={onClose} aria-label="Close">
+          <button className="icon-button" onClick={onClose} aria-label={t("common.close", "Close")}>
             <X size={18} />
           </button>
         </div>
