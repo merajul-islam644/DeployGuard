@@ -1,0 +1,15 @@
+{
+  "collectionName": "CheckResults",
+  "schemaName": "CheckResult",
+  "schemaType": 1,
+  "fields": [
+    { "name": "verificationId", "type": "String", "isArray": false, "isUniqueData": false, "description": "Run the check belongs to", "requiredOn": "Insert" },
+    { "name": "checkKey", "type": "String", "isArray": false, "isUniqueData": false, "description": "Machine key of the check", "requiredOn": "Insert" },
+    { "name": "checkName", "type": "String", "isArray": false, "isUniqueData": false, "description": "Display name of the check", "requiredOn": "Insert" },
+    { "name": "outcome", "type": "String", "isArray": false, "isUniqueData": false, "description": "Passed, Warning or Failed", "requiredOn": "Insert" },
+    { "name": "result", "type": "String", "isArray": false, "isUniqueData": false, "description": "Plain reading such as 1.2s or 0", "requiredOn": "None" },
+    { "name": "weight", "type": "Int", "isArray": false, "isUniqueData": false, "description": "Fixed weight of the check", "requiredOn": "None" },
+    { "name": "durationSeconds", "type": "Float", "isArray": false, "isUniqueData": false, "description": "How long the check took", "requiredOn": "None" },
+    { "name": "detail", "type": "String", "isArray": true, "isUniqueData": false, "description": "Per-item detail lines", "requiredOn": "None" }
+  ]
+}

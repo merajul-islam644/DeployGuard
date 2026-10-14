@@ -1,0 +1,13 @@
+{
+  "collectionName": "ActivityEntries",
+  "schemaName": "ActivityEntry",
+  "schemaType": 1,
+  "fields": [
+    { "name": "verificationId", "type": "String", "isArray": false, "isUniqueData": false, "description": "Run the step belongs to", "requiredOn": "Insert" },
+    { "name": "stepName", "type": "String", "isArray": false, "isUniqueData": false, "description": "Step name", "requiredOn": "Insert" },
+    { "name": "state", "type": "String", "isArray": false, "isUniqueData": false, "description": "Running, Done or Skipped", "requiredOn": "Insert" },
+    { "name": "notedAt", "type": "String", "isArray": false, "isUniqueData": false, "description": "When the step was noted", "requiredOn": "None" },
+    { "name": "note", "type": "String", "isArray": false, "isUniqueData": false, "description": "Short result line", "requiredOn": "None" },
+    { "name": "order", "type": "Int", "isArray": false, "isUniqueData": false, "description": "Order within the run", "requiredOn": "None" }
+  ]
+}

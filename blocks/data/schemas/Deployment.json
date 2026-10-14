@@ -1,0 +1,47 @@
+{
+  "collectionName": "Deployments",
+  "schemaName": "Deployment",
+  "schemaType": 1,
+  "fields": [
+    {
+      "name": "name",
+      "type": "String",
+      "isArray": false,
+      "isUniqueData": false,
+      "description": "Deployment name",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "environment",
+      "type": "String",
+      "isArray": false,
+      "isUniqueData": false,
+      "description": "Production, Staging, Development or Custom",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "url",
+      "type": "String",
+      "isArray": false,
+      "isUniqueData": false,
+      "description": "The web application address that gets verified",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "checks",
+      "type": "String",
+      "isArray": true,
+      "isUniqueData": false,
+      "description": "Enabled check keys for this deployment",
+      "requiredOn": "None"
+    },
+    {
+      "name": "addedBy",
+      "type": "String",
+      "isArray": false,
+      "isUniqueData": false,
+      "description": "Who created the deployment",
+      "requiredOn": "None"
+    }
+  ]
+}

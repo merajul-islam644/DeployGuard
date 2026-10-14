@@ -1,0 +1,14 @@
+{
+  "collectionName": "ChangeRecords",
+  "schemaName": "ChangeRecord",
+  "schemaType": 1,
+  "fields": [
+    { "name": "entity", "type": "String", "isArray": false, "isUniqueData": false, "description": "Deployment or Person", "requiredOn": "Insert" },
+    { "name": "record", "type": "String", "isArray": false, "isUniqueData": false, "description": "What was changed", "requiredOn": "Insert" },
+    { "name": "changedBy", "type": "String", "isArray": false, "isUniqueData": false, "description": "Who changed it", "requiredOn": "Insert" },
+    { "name": "changedAt", "type": "String", "isArray": false, "isUniqueData": false, "description": "When it changed", "requiredOn": "Insert" },
+    { "name": "before", "type": "String", "isArray": false, "isUniqueData": false, "description": "Values before the change", "requiredOn": "None" },
+    { "name": "after", "type": "String", "isArray": false, "isUniqueData": false, "description": "Values after the change", "requiredOn": "None" },
+    { "name": "action", "type": "String", "isArray": false, "isUniqueData": false, "description": "Added, Updated or Removed", "requiredOn": "None" }
+  ]
+}

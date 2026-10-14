@@ -1,0 +1,31 @@
+export const defaultDictionary = {
+  "app.name": "DeployGuard",
+  "nav.overview": "Overview",
+  "nav.deployments": "Deployments",
+  "nav.verifications": "Verifications",
+  "nav.issues": "Issues",
+  "nav.analytics": "Analytics",
+  "nav.settings": "Settings",
+  "nav.profile": "Profile",
+  "nav.logout": "Log out",
+  "auth.welcome": "Welcome back",
+  "auth.subtitle": "Sign in to continue to DeployGuard.",
+  "auth.continue": "Sign in to DeployGuard",
+  "auth.redirecting": "Redirecting...",
+  "auth.notConfigured": "Sign-in is not set up yet. Finish the app's login configuration, then try again.",
+  "auth.failed": "Sign-in failed",
+  "auth.back": "Back to sign in",
+  "common.save": "Save",
+  "common.cancel": "Cancel",
+  "common.delete": "Delete",
+  "common.refresh": "Refresh",
+  "common.loading": "Loading",
+  "common.error": "Something went wrong",
+  "profile.title": "Profile",
+  "profile.subtitle": "Your signed-in details.",
+  "notFound.title": "404",
+  "notFound.message": "This page does not exist.",
+  "notFound.home": "Back to Overview"
+} as const;
+
+export type TranslationKey = keyof typeof defaultDictionary;

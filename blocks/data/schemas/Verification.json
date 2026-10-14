@@ -1,0 +1,24 @@
+{
+  "collectionName": "Verifications",
+  "schemaName": "Verification",
+  "schemaType": 1,
+  "fields": [
+    { "name": "deploymentId", "type": "String", "isArray": false, "isUniqueData": false, "description": "Deployment the run belongs to", "requiredOn": "Insert" },
+    { "name": "deploymentName", "type": "String", "isArray": false, "isUniqueData": false, "description": "Deployment name captured at run time", "requiredOn": "Insert" },
+    { "name": "environment", "type": "String", "isArray": false, "isUniqueData": false, "description": "Environment captured at run time", "requiredOn": "Insert" },
+    { "name": "url", "type": "String", "isArray": false, "isUniqueData": false, "description": "URL captured at run time", "requiredOn": "Insert" },
+    { "name": "status", "type": "String", "isArray": false, "isUniqueData": false, "description": "Completed, Failed, Cancelled or Timed Out", "requiredOn": "Insert" },
+    { "name": "healthStatus", "type": "String", "isArray": false, "isUniqueData": false, "description": "Healthy, Needs Attention or Failed", "requiredOn": "Insert" },
+    { "name": "score", "type": "Int", "isArray": false, "isUniqueData": false, "description": "Health score 0-100", "requiredOn": "Insert" },
+    { "name": "durationSeconds", "type": "Float", "isArray": false, "isUniqueData": false, "description": "Run duration in seconds", "requiredOn": "None" },
+    { "name": "startedAt", "type": "String", "isArray": false, "isUniqueData": false, "description": "When the run started", "requiredOn": "Insert" },
+    { "name": "triggeredBy", "type": "String", "isArray": false, "isUniqueData": false, "description": "Person who started the run", "requiredOn": "None" },
+    { "name": "triggerType", "type": "String", "isArray": false, "isUniqueData": false, "description": "Manual", "requiredOn": "None" },
+    { "name": "reason", "type": "String", "isArray": false, "isUniqueData": false, "description": "One-line reason for the status", "requiredOn": "None" },
+    { "name": "checks", "type": "String", "isArray": true, "isUniqueData": false, "description": "Enabled check keys for this run", "requiredOn": "None" },
+    { "name": "summary", "type": "String", "isArray": false, "isUniqueData": false, "description": "AI analysis summary", "requiredOn": "None" },
+    { "name": "analysisSeverity", "type": "String", "isArray": false, "isUniqueData": false, "description": "low, medium or high", "requiredOn": "None" },
+    { "name": "warnings", "type": "String", "isArray": true, "isUniqueData": false, "description": "AI warnings", "requiredOn": "None" },
+    { "name": "recommendations", "type": "String", "isArray": true, "isUniqueData": false, "description": "AI recommendations", "requiredOn": "None" }
+  ]
+}

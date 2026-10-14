@@ -1,0 +1,17 @@
+{
+  "project": {
+    "tenantId": "D5228a356cc0f47c8ba2a455e0a513082",
+    "apiUrl": "https://blocksapi.slsblx.com",
+    "appDomain": "https://D5228a356cc0f47c8ba2a455e0a513082-4e7582d0-ab90-47b1-834b-f69df26bc164.slsblx.com"
+  },
+  "data": {
+    "schemas": "blocks/data/schemas",
+    "rules": "blocks/data/rules.json"
+  },
+  "repo": {
+    "branch": "dev",
+    "fullName": "merajul-islam644/DeployGuard",
+    "provider": "github",
+    "url": "https://github.com/merajul-islam644/DeployGuard"
+  }
+}

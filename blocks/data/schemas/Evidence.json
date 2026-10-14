@@ -1,0 +1,16 @@
+{
+  "collectionName": "Evidences",
+  "schemaName": "Evidence",
+  "schemaType": 1,
+  "fields": [
+    { "name": "verificationId", "type": "String", "isArray": false, "isUniqueData": false, "description": "Run the evidence belongs to", "requiredOn": "Insert" },
+    { "name": "kind", "type": "String", "isArray": false, "isUniqueData": false, "description": "Screenshot, Network, Console, Trace, DOM or Timeline", "requiredOn": "Insert" },
+    { "name": "capture", "type": "String", "isArray": false, "isUniqueData": false, "description": "The captured image, list or text", "requiredOn": "None" },
+    { "name": "capturedAt", "type": "String", "isArray": false, "isUniqueData": false, "description": "When the capture was taken", "requiredOn": "None" },
+    { "name": "url", "type": "String", "isArray": false, "isUniqueData": false, "description": "URL captured against", "requiredOn": "None" },
+    { "name": "viewport", "type": "String", "isArray": false, "isUniqueData": false, "description": "Viewport size", "requiredOn": "None" },
+    { "name": "browser", "type": "String", "isArray": false, "isUniqueData": false, "description": "Browser name", "requiredOn": "None" },
+    { "name": "notCaptured", "type": "Boolean", "isArray": false, "isUniqueData": false, "description": "True when nothing could be captured", "requiredOn": "None" },
+    { "name": "rows", "type": "String", "isArray": true, "isUniqueData": false, "description": "Structured rows as JSON strings", "requiredOn": "None" }
+  ]
+}

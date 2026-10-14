@@ -1,0 +1,16 @@
+{
+  "collectionName": "Issues",
+  "schemaName": "Issue",
+  "schemaType": 1,
+  "fields": [
+    { "name": "verificationId", "type": "String", "isArray": false, "isUniqueData": false, "description": "Run the issue came from", "requiredOn": "Insert" },
+    { "name": "deploymentId", "type": "String", "isArray": false, "isUniqueData": false, "description": "Deployment that failed", "requiredOn": "Insert" },
+    { "name": "deploymentName", "type": "String", "isArray": false, "isUniqueData": false, "description": "Deployment name at the time", "requiredOn": "None" },
+    { "name": "checkKey", "type": "String", "isArray": false, "isUniqueData": false, "description": "Which check failed", "requiredOn": "Insert" },
+    { "name": "checkName", "type": "String", "isArray": false, "isUniqueData": false, "description": "Display name of the check", "requiredOn": "None" },
+    { "name": "summary", "type": "String", "isArray": false, "isUniqueData": false, "description": "One-line summary", "requiredOn": "Insert" },
+    { "name": "raisedAt", "type": "String", "isArray": false, "isUniqueData": false, "description": "When the issue was raised", "requiredOn": "Insert" },
+    { "name": "open", "type": "Boolean", "isArray": false, "isUniqueData": false, "description": "Open until a later healthy run", "requiredOn": "None" },
+    { "name": "resolvedAt", "type": "String", "isArray": false, "isUniqueData": false, "description": "When it was resolved", "requiredOn": "None" }
+  ]
+}
